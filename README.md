@@ -1,5 +1,5 @@
 # Newton-Rhapson-Power-Flow
-Implementation of Newton Rhapson Power Flow (NRPF) algorithm on IEEE-14 bus system with transformer taps, Q-limits, and fast decoupled approach for better computation. The program is developed without using **any** in-built functions of ```MATLAB```.  
+Implementation of Newton Rhapson Power Flow (NRPF) algorithm on IEEE-14 bus system with transformer taps, Q-limits, and Fast Decoupled power flow approach for better computation. The program is developed without using **any** in-built functions of ```MATLAB```.  
 
 ![IEEE-14 bus system.](./IEEE14bus_data/14bus600.tif)
 
@@ -8,7 +8,7 @@ Implementation of Newton Rhapson Power Flow (NRPF) algorithm on IEEE-14 bus syst
 1. Y-bus formulation
 2. Calculating Jacobian Matrix
 3. Inversion using Crout's LU factorization 
-4. Solving NRPF unless error < 0.001
+4. Solving NRPF unless *error* < 0.001
 5. Implementing Q-lim controls
 6. Fast Decoupled Power Flow
 
