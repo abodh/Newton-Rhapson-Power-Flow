@@ -13,8 +13,11 @@ Implementation of Newton Rhapson Power Flow (NRPF) algorithm on IEEE-14 bus syst
 2. Calculating Jacobian Matrix
 3. Inversion using Crout's LU factorization 
 4. Solving NRPF unless *power mismatch* < 0.001
-5. Implementing Q-lim controls
-6. Fast Decoupled Power Flow
+5. Fast Decoupled Power Flow
+  a. when the B matrices are same for both the diagonal sub-Jacobian matrices
+  b. when the B matrices are different for the diagonal sub-Jacobian matrices i.e. when lossless system is assumed (i.e. B = 1/X).
+6. Implementing Q-lim controls
+ 
 
 # Dependencies
 1. ```MATLAB```
