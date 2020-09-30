@@ -1,8 +1,7 @@
 %{
+Newton Rhapson Power Flow
 Author: Abodh Poudyal
-Last updated: September 15, 2020
-
-Newton Rhapson Power flow with in-built inversion
+Last updated: September 30, 2020
 %}
 
 clear;
@@ -12,13 +11,13 @@ format short % to display less significant digits in the result
 % for convenience, the bus and branch data have been separated to two files
 
 %import the data for each buses
-bus_data = importdata('bus_data.txt');
+bus_data = importdata('IEEE14bus_data/bus_data.txt');
 
 % bus_imp = [conductance susceptance] for each of the bus
 bus_imp = bus_data.data(:,14:15); 
 
 %import the data for each branches
-branch_data = importdata('branch_data.txt');
+branch_data = importdata('IEEE14bus_data/branch_data.txt');
 
 % bus_imp = [R X B tap_setting] for each of the branches
 branch_imp = [branch_data(:,7:9), branch_data(:,15)];
@@ -34,6 +33,9 @@ V = bus_data.data(:,11);
 % flat start means |V| = 1.0 pu and delta = 0
 V(find(V == 0)) = 1;
 delta = zeros(length(V),1);
+
+V_flat = V;
+delta_flat = delta;
 
 % scheduled power
 Ps = (bus_data.data(:,8) - bus_data.data(:,6))*0.01;
@@ -56,28 +58,92 @@ n_branch = length(branch_imp);
 Y_bus = Ybus(n_bus, n_branch, branch_imp, bus_imp, from, to);
 G = real(Y_bus); % conductance is the real part of admittance
 B = imag(Y_bus); % susceptance is the imaginary part of admittance
-Volt = zeros(n_bus,4);
-Angle = zeros(n_bus,4);
+iter = 0;
 
 % Power flow iteration
-for iter = 1:5
+mismatch = ones(2 * n_bus - n_pv - 2, 1);
+
+%% Fast decoupled power flow
+mismatch = ones(2 * n_bus - n_pv - 2, 1);
+iter = 0;
+V = V_flat;
+delta = delta_flat;
+% B11 = B(2:end,2:end);
+
+B_prime = zeros(n_bus,n_bus);
+for i = 1 : n_branch
+    % Yij = -((1/(rij + j.xij)) + j.Bij/2)/tap-setting 
+    B_prime(from(i),to(i)) = - (1/(0 + 1i*(branch_imp(i,2))))/branch_imp(i,4);
+
+    %Yij = Yji
+    B_prime(to(i),from(i)) = B_prime(from(i),to(i));
+
+    % considering tap-setting the admittance matrix looks like
+    % Y = [Y/t^2  -Y/t
+    %       -Y/t     Y]
+    B_prime(from(i),from(i)) = B_prime(from(i),from(i)) + ((1/(0 + 1i*(branch_imp(i,2))))/(branch_imp(i,4))^2) + 1i*0.5*branch_imp(i,3);
+
+    B_prime(to(i),to(i)) = B_prime(to(i),to(i)) + (1/(0 + 1i*(branch_imp(i,2)))) + 1i*0.5*branch_imp(i,3);
+end
+
+for i  = 1 : n_bus
+    % the individual buses will have their own shunt device 
+    % It should also be included in the Y_bus; Yii = Yii + (Gi + j.Bi)
+    B_prime(i,i) = B_prime(i,i) + 0 + 1i*bus_imp(i,2);
+end
+B_prime_ = imag(B_prime);
+B11 = B_prime_(2:end,2:end);
+
+for i = 1 : length(pq_bus_id)
+    for j = 1 : length(pq_bus_id)
+        B22(i,j) = B(pq_bus_id(i), pq_bus_id(j));
+    end
+end
+
+Jacob_FD = -[B11 zeros(n_bus-1, length(pq_bus_id)); zeros(length(pq_bus_id),n_bus-1) B22];
+
+while any(abs(mismatch(:)) > 0.01)
+    iter = iter + 1;
+    Volt_FD(:,iter) = V;
+    Angle_FD(:,iter) = delta;   
+    mismatch = power_mismatch(Ps, Qs, G, B, V, delta, n_bus, pq_bus_id);
+    error = croutLU(Jacob_FD, mismatch);
+    delta(2:end) = delta(2:end) + error(1 : n_bus-1);
+    V(pq_bus_id) = V(pq_bus_id) + error(n_bus : end);
+end
+for i = 1: length(Volt_FD)
+    plot(Volt_FD(i,:))
+    hold on
+%     ylim([0:1])
+end
+hold off
+
+figure
+for i = 1: length(Angle_FD)
+    plot(Angle_FD(i,:))
+    hold on
+%     ylim([0:1])
+end
+%%
+
+while any(abs(mismatch(:)) > 0.01)
+    iter = iter + 1;
     Volt(:,iter) = V;
     Angle(:,iter) = delta;
     Jacob = Jacobian(V, delta, n_bus, n_pq, pq_bus_id, G, B);
     mismatch = power_mismatch(Ps, Qs, G, B, V, delta, n_bus, pq_bus_id);
-    error = inv(Jacob) * mismatch;
-    error_VD = croutLU(Jacob, mismatch);
-    avg_error(iter) = abs(sum(error)/length(error));
+%   error = inv(Jacob) * mismatch;
+    error = croutLU(Jacob, mismatch);
     delta(2:end) = delta(2:end) + error(1 : n_bus-1);
     V(pq_bus_id) = V(pq_bus_id) + error(n_bus : end);
 end
 
-plot (avg_error,'r', 'Linewidth',2)
-ylabel('Averaged absolute error')
-xlabel('number of iteration')
-grid on
-set(gca,'XTick',(1:1:4))
-set(gca,'gridlinestyle','--','fontname','Arial','fontsize',12);
+% plot (avg_error,'r', 'Linewidth',2)
+% ylabel('Averaged absolute error')
+% xlabel('number of iteration')
+% grid on
+% set(gca,'XTick',(1:1:4))
+% set(gca,'gridlinestyle','--','fontname','Arial','fontsize',12);
 
 for i = 1: length(Volt)
     plot(Volt(i,:))
@@ -280,3 +346,5 @@ function Jacob_matrix = Jacobian(V, delta, n_bus, n_pq, pq_bus_id, G, B)
     % combining the jacobian matrix
     Jacob_matrix = [J11 J12; J21 J22];    
 end
+
+
