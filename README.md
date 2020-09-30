@@ -1,9 +1,11 @@
 # Newton-Rhapson-Power-Flow
 Implementation of Newton Rhapson Power Flow (NRPF) algorithm on IEEE-14 bus system with transformer taps, Q-limits, and Fast Decoupled power flow approach for better computation. The program is developed without using **any** in-built functions of ```MATLAB```. Although presented for the IEEE-14 bus system, the code is generalized to work for different system provided that the data is presented in IEEE common data format.  
 
-*Note: In order to make this work, you have to assume that Bus 1 is the slack bus.*
-
 ![IEEE-14 bus system](./IEEE14bus_data/IEEE14bus.PNG)
+
+# Assumptions
+1. In order to make this work, we have to assume that Bus 1 is the slack bus. Hence, bus 1 is always considered as a slack bus.
+2. The Crout's LU factorization algorithm does not work when the first diagonal element of L is zero.
 
 # Development Stages
 1. Reading bus and branch data in common data format 
