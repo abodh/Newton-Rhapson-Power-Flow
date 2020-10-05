@@ -6,7 +6,7 @@ Last updated: September 30, 2020
 
 clear;
 clc;
-format short % to display less significant digits in the result 
+% format short % to display less significant digits in the result 
 
 %% 1. Reading bus and branch data in common data format
 % external function to extract the data from IEEE common data format
@@ -38,24 +38,17 @@ delta_flat = zeros(length(V_flat),1);
 % V = V_flat;
 % delta = delta_flat;
 
-% scheduled power
-Ps = (bus_data.data(:,8) - bus_data.data(:,6))*0.01;
-Qs = bus_data.data(:,9) - bus_data.data(:,7)*0.01;
-
 % number of buses in the entire system
 n_bus = length(bus_data.data(:,3));
 
-% number of PV buses 
-n_pv = length(find(bus_data.data(:,3) == 2));
-
-% number of pq buses
-n_pq = length(find(bus_data.data(:,3) == 0));
-
-% stores an array of PQ bus IDs
-pq_bus_id = find(bus_data.data(:,3) == 0);
-
 % number of branches
 n_branch = length(branch_imp);
+
+% iterate unless power mismatch < 0.01 (tolerance)
+tolerance = 0.01;
+
+% base power
+base_MW = 100;
 
 %% 2. Calculating the Y-bus matrix
 
@@ -65,21 +58,38 @@ B = imag(Y_bus); % susceptance (B) <- the imaginary part of admittance
 
 %% 3,4,5. Calculating Jacobian Matrix, LU factorization, and NR power flow
 
-% iterate unless power mismatch < 0.01 (tolerance)
-tolerance = 0.01;
+Q_lim_status = 1;
+while (Q_lim_status)
+    % scheduled power
+    Ps = (bus_data.data(:,8) - bus_data.data(:,6))/base_MW;
+    Qs = (bus_data.data(:,9) - bus_data.data(:,7))/base_MW;
 
-% Newton Rhapson Power Flow 
-[Volt, Angle, error_avg] = ...
-    NewtonRhapson(tolerance, n_bus, n_pv, n_pq, pq_bus_id, V_flat, ...
-    delta_flat, G, B, Ps, Qs);
+    % number of pq buses
+    n_pq = length(find(bus_data.data(:,3) == 0));
 
+    % number of PV buses 
+    n_pv = length(find(bus_data.data(:,3) == 2));
+
+    % stores an array of PQ bus IDs
+    pq_bus_id = find(bus_data.data(:,3) == 0);
+
+    % stores an array of PV bus IDs 
+    pv_bus_id = find(bus_data.data(:,3) == 2);
+
+    % Newton Rhapson Power Flow 
+    [Volt, Angle, error_avg] = ...
+        NewtonRhapson(tolerance, n_bus, n_pv, n_pq, pq_bus_id, V_flat, ...
+        delta_flat, G, B, Ps, Qs);
+    
+    % Q-limit check
+    [Q_lim_status, bus_data] = Qlim(Volt, Angle, bus_data, G, B,...
+        base_MW, pv_bus_id, n_bus);
+end
+    
 %% 6. Fast decoupled power flow
 [Volt_FD, Angle_FD, error_avg_FD] = ...
     FastDecoupledPF(tolerance, from, to, n_branch, n_bus, n_pv, n_pq, ...
-    pq_bus_id, V_flat, delta_flat, G, B, Ps, Qs, branch_imp, bus_imp);
-
-%% 7. Analyzing the Q-limits Q_min < Q < Q_max
-
+    pq_bus_id, V_flat, delta_flat, G, B, Ps, Qs, branch_imp, bus_imp); 
 
 %% plots of the result
 
@@ -140,6 +150,6 @@ grid on
 set(gca,'gridlinestyle','--','fontname','Times New Roman','fontsize',12);
 hold off
 
-lgd = legend (str, 'NumColumns', 4);;
+lgd = legend (str, 'NumColumns', 4);
 % set(lgd,'position',poshL);      % Adjusting legend's position
 % axis(hL,'off');                 % Turning its axis off

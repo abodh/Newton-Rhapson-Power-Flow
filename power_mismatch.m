@@ -17,8 +17,7 @@ function mismatch = power_mismatch(Ps, Qs, G, B, V, delta, n_bus, pq_bus_id)
                 B(i,j)*cos(delta(i)-delta(j)));
         end
     end
-    Q_ = Q*100;
-    Q_;
+    
     delta_P = Ps - P;
     delta_Q = Qs - Q;
 
