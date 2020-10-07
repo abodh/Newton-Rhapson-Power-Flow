@@ -4,7 +4,7 @@ function Y_bus = Ybus(n_bus, n_branch, branch_imp, bus_imp, from, to)
     Y_bus = zeros(n_bus);
 
     for i = 1 : n_branch
-        % Yij = -((1/(rij + j.xij)) + j.Bij/2)/tap-setting 
+        % Yij = -(1/(rij + j.xij))/tap-setting 
         Y_bus(from(i),to(i)) = - (1/(branch_imp(i,1) + 1i*(branch_imp(i,2))))/branch_imp(i,4);
 
         %Yij = Yji

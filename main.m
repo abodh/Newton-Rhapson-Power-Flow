@@ -1,23 +1,24 @@
 %{
 Newton Rhapson Power Flow
 Author: Abodh Poudyal
-Last updated: September 30, 2020
+Last updated: October 6, 2020
 %}
 
 clear;
 clc;
-% format short % to display less significant digits in the result 
+format short % to display less significant digits in the result 
 
 %% 1. Reading bus and branch data in common data format
 % external function to extract the data from IEEE common data format
 
 bus_path = 'IEEE14bus_data/bus_data.txt';
 branch_path = 'IEEE14bus_data/branch_data.txt';
-[bus_imp, branch_imp, bus_data, branch_data] = data_extraction(bus_path, branch_path);
+[bus_imp, branch_imp, bus_data, branch_data] = ...
+    data_extraction(bus_path, branch_path);
 
 %{ 
 to reduce the computational complexity, we will only compute 
-for existing brances
+for existing branches
 %}
 
 % define some important variables
@@ -51,7 +52,6 @@ tolerance = 0.01;
 base_MW = 100;
 
 %% 2. Calculating the Y-bus matrix
-
 Y_bus = Ybus(n_bus, n_branch, branch_imp, bus_imp, from, to);
 G = real(Y_bus); % conductance (G) <- real part of admittance 
 B = imag(Y_bus); % susceptance (B) <- the imaginary part of admittance 
@@ -60,6 +60,7 @@ B = imag(Y_bus); % susceptance (B) <- the imaginary part of admittance
 
 Q_lim_status = 1;
 while (Q_lim_status)
+    
     % scheduled power
     Ps = (bus_data.data(:,8) - bus_data.data(:,6))/base_MW;
     Qs = (bus_data.data(:,9) - bus_data.data(:,7))/base_MW;
@@ -95,25 +96,26 @@ end
 
 % NRLF Voltage
 figure('color', [1,1,1])
-subplot(3,2,1)
 str = "bus 1";
 for i = 1: length(Volt)
     plot(Volt(i,:), 'Linewidth', 1.5)
     hold on
     if i > 1
-        str = [str , strcat('bus ' , num2str(i))];
+        str = [str , strcat('bus',' ', num2str(i))];
     end
 end
 
 ylabel('Voltage (pu)')
 xlabel('Number of iteration')
 grid on
-% set(gca,'XTick',(1:1:4))
+set(gca,'XTick',(1:1:10))
 set(gca,'gridlinestyle','--','fontname','Times New Roman','fontsize',12);
+lgd = legend (str, 'NumColumns', 4);
+lgd.FontSize = 9;
 hold off
 
 % NRLF Angle
-subplot(3,2,2)
+figure('color', [1,1,1])
 for i = 1: length(Angle)
     plot(Angle(i,:), 'Linewidth', 1.5)
     hold on
@@ -121,11 +123,15 @@ end
 ylabel('Angle (rad)')
 xlabel('Number of iteration')
 grid on
+set(gca,'XTick',(1:1:10))
 set(gca,'gridlinestyle','--','fontname','Times New Roman','fontsize',12);
+lgd = legend (str, 'NumColumns', 3);
+lgd.FontSize = 9;
 hold off
 
+
 % FDLF Voltage
-subplot(3,2,3)
+figure('color', [1,1,1])
 for i = 1: length(Volt_FD)
     plot(Volt_FD(i,:), 'Linewidth', 1.5)
     hold on
@@ -133,23 +139,28 @@ end
 ylabel('Voltage (pu)')
 xlabel('Number of iteration')
 grid on
+set(gca,'XTick',(1:1:10))
 set(gca,'gridlinestyle','--','fontname','Times New Roman','fontsize',12);
+lgd = legend (str, 'NumColumns', 4);
+lgd.FontSize = 9;
 hold off
 
 % FDLF Angle
-subplot(3,2,4)
+figure('color', [1,1,1])
 for i = 1: length(Angle_FD)
     plot(Angle_FD(i,:), 'Linewidth', 1.5)
     hold on
 %     ylim([0:1])
 end
-
 ylabel('Angle (rad)')
 xlabel('Number of iteration')
 grid on
+set(gca,'XTick',(1:1:10))
 set(gca,'gridlinestyle','--','fontname','Times New Roman','fontsize',12);
+lgd = legend (str, 'NumColumns', 3);
+lgd.FontSize = 9;
 hold off
-
-lgd = legend (str, 'NumColumns', 4);
-% set(lgd,'position',poshL);      % Adjusting legend's position
-% axis(hL,'off');                 % Turning its axis off
+% 
+% lgd = legend (str, 'NumColumns', 4);
+% % set(lgd,'position',poshL);      % Adjusting legend's position
+% % axis(hL,'off');                 % Turning its axis off

@@ -11,8 +11,10 @@ function Jacob_matrix = Jacobian(V, delta, n_bus, n_pq, pq_bus_id, G, B)
     %}
     for i = 1 : n_bus
         for j = 1 : n_bus
-            P(i) = P(i) + V(i)*V(j)*(G(i,j)*cos(delta(i)-delta(j)) + B(i,j)*sin(delta(i)-delta(j)));
-            Q(i) = Q(i) + V(i)*V(j)*(G(i,j)*sin(delta(i)-delta(j)) - B(i,j)*cos(delta(i)-delta(j)));
+            P(i) = P(i) + V(i)*V(j)*(G(i,j)*cos(delta(i)-delta(j))...
+                + B(i,j)*sin(delta(i)-delta(j)));
+            Q(i) = Q(i) + V(i)*V(j)*(G(i,j)*sin(delta(i)-delta(j))...
+                - B(i,j)*cos(delta(i)-delta(j)));
         end
     end
 
@@ -45,7 +47,8 @@ function Jacob_matrix = Jacobian(V, delta, n_bus, n_pq, pq_bus_id, G, B)
             if (i == k)
                 J11(i-1,k-1) = - Q(i) - (V(i)^2 * B(i,i));
             else
-                J11(i-1,k-1) = V(i)*V(k)*(G(i,k)*sin(delta(i)-delta(k)) - B(i,k)*cos(delta(i)-delta(k)));
+                J11(i-1,k-1) = V(i)*V(k)*(G(i,k)*sin(delta(i)-delta(k))...
+                    - B(i,k)*cos(delta(i)-delta(k)));
             end
         end
     end
@@ -57,7 +60,8 @@ function Jacob_matrix = Jacobian(V, delta, n_bus, n_pq, pq_bus_id, G, B)
             if (j == k)
                 J21(i-1,k-1) = P(j) - (V(j)^2 * G(j,j));
             else
-                J21(i-1,k-1) = -V(j)*V(k)*(G(j,k)*cos(delta(j)-delta(k)) + B(j,k)*sin(delta(j)-delta(k)));
+                J21(i-1,k-1) = -V(j)*V(k)*(G(j,k)*cos(delta(j)-delta(k))...
+                    + B(j,k)*sin(delta(j)-delta(k)));
             end
         end
     end
@@ -70,7 +74,8 @@ function Jacob_matrix = Jacobian(V, delta, n_bus, n_pq, pq_bus_id, G, B)
             if (i == j)
                 J12(i-1,k-1) = P(j) + (V(j)^2 * G(j,j));
             else
-                J12(i-1,k-1) = V(i)*(G(i,j)*cos(delta(i)-delta(j)) + B(i,j)*sin(delta(i)-delta(j)));
+                J12(i-1,k-1) = V(i)*(G(i,j)*cos(delta(i)-delta(j))...
+                    + B(i,j)*sin(delta(i)-delta(j)));
             end
         end
     end
@@ -83,7 +88,8 @@ function Jacob_matrix = Jacobian(V, delta, n_bus, n_pq, pq_bus_id, G, B)
             if (j == l)
                 J22(i-1,k-1) = Q(j) - (V(j)^2 * B(j,j));
             else
-                J22(i-1,k-1) = V(j)*(G(j,l)*sin(delta(j)-delta(l)) - B(j,l)*cos(delta(j)-delta(l)));
+                J22(i-1,k-1) = V(j)*(G(j,l)*sin(delta(j)-delta(l))...
+                    - B(j,l)*cos(delta(j)-delta(l)));
             end
         end
     end
