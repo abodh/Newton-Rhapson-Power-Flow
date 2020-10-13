@@ -9,17 +9,13 @@ function [Q_lim_status, bus_data] = Qlim(Volt, Angle, bus_data, G, B,...
     % Q_max and Q_min (extracting Q limits)
     Q_max = bus_data.data(:,12);
     Q_min = bus_data.data(:,13);
-    
-    % take the final voltage and angle of power flow
-    Volt = Volt(:,3);
-    Angle = Angle(:,3);
-    
+
     % check the Q-limit
     Q = zeros(n_bus,1);
     for i = 1 : n_bus
         for j = 1 : n_bus
-            Q(i) = Q(i) + Volt(i)*Volt(j)*(G(i,j)*sin(Angle(i)-Angle(j)) - ...
-                B(i,j)*cos(Angle(i)-Angle(j)));
+            Q(i) = Q(i) + Volt(i)*Volt(j)*(G(i,j)*sin(Angle(i)-Angle(j))...
+                - B(i,j)*cos(Angle(i)-Angle(j)));
         end
     end
     

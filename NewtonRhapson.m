@@ -17,7 +17,8 @@ function [Volt, Angle, error_avg] = ...
         Jacob = Jacobian(V, delta, n_bus, n_pq, pq_bus_id, G, B);
         
         % calculate power mismatch
-        mismatch = power_mismatch(Ps, Qs, G, B, V, delta, n_bus, pq_bus_id);
+        mismatch = power_mismatch(Ps, Qs, G, B, V, delta, n_bus,...
+            pq_bus_id);
         
         % find the error [del_delta | del_V]
         error = croutLU(Jacob, mismatch);

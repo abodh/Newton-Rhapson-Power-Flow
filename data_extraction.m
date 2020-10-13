@@ -1,4 +1,5 @@
-function [bus_imp, branch_imp, bus_data, branch_data] = data_extraction (bus_path, branch_path)
+function [bus_imp, branch_imp, bus_data, branch_data] = ...
+    data_extraction (bus_path, branch_path)
 
     % the bus and branch data have been separated to two files
     % both of the files are inside IEEE14bus_data folder

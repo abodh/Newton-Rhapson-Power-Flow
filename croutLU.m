@@ -2,17 +2,24 @@ function error_VD = croutLU(A, b)
 L = zeros(length(A));
 U = zeros(length(A));
 
+% the first column of lower traingular is the same as matrix A
 L(1:length(A),1) = A(1:length(A),1);
+
+% setting the diagonals of upper traingular to 1
 for i = 1:length(A)
     U(i,i) = 1;
 end
+
+% calculating the first row of upper traingular
 U(1,2:length(A)) = A(1,2:length(A))/L(1,1);
 
 for j = 2 : length(A)
     for k = j : length(A)
+        % updating the columns of L
         L(k,j) = A(k,j) - L(k,1:j-1)*U(1:j-1,j);
     end
     for k = j+1 : length(A)
+        % updating the rows of U
         U(j,k) = (A(j,k) - (L(j,1:j-1)*U(1:j-1,k)))/L(j,j);
     end
 end

@@ -82,9 +82,16 @@ while (Q_lim_status)
         NewtonRhapson(tolerance, n_bus, n_pv, n_pq, pq_bus_id, V_flat, ...
         delta_flat, G, B, Ps, Qs);
     
+    V_final = Volt(:,end);
+    Angle_final = Angle(:,end);
+
     % Q-limit check
-    [Q_lim_status, bus_data] = Qlim(Volt, Angle, bus_data, G, B,...
-        base_MW, pv_bus_id, n_bus);
+    [Q_lim_status, bus_data] = Qlim(V_final, Angle_final, bus_data, ...
+        G, B, base_MW, pv_bus_id, n_bus);
+    if (Q_lim_status)
+        V_flat = V_final;
+        delta_flat = Angle_final;
+    end
 end
     
 %% 6. Fast decoupled power flow
@@ -129,7 +136,6 @@ lgd = legend (str, 'NumColumns', 3);
 lgd.FontSize = 9;
 hold off
 
-
 % FDLF Voltage
 figure('color', [1,1,1])
 for i = 1: length(Volt_FD)
@@ -160,7 +166,7 @@ set(gca,'gridlinestyle','--','fontname','Times New Roman','fontsize',12);
 lgd = legend (str, 'NumColumns', 3);
 lgd.FontSize = 9;
 hold off
-% 
-% lgd = legend (str, 'NumColumns', 4);
-% % set(lgd,'position',poshL);      % Adjusting legend's position
-% % axis(hL,'off');                 % Turning its axis off
+
+lgd = legend (str, 'NumColumns', 4);
+% set(lgd,'position',poshL);      % Adjusting legend's position
+% axis(hL,'off');                 % Turning its axis off

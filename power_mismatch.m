@@ -1,4 +1,6 @@
-function mismatch = power_mismatch(Ps, Qs, G, B, V, delta, n_bus, pq_bus_id)
+function mismatch = power_mismatch(Ps, Qs, G, B, V, delta, ...
+    n_bus, pq_bus_id)
+
     P = zeros(n_bus,1);
     Q = zeros(n_bus,1);
 
