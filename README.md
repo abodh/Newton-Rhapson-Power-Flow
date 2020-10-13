@@ -12,7 +12,7 @@ Implementation of Newton Rhapson Power Flow (NRPF) algorithm on IEEE-14 bus syst
 2. Y-bus formulation
 3. Calculating Jacobian Matrix
 4. Crout's LU factorization to solve unknown values 
-5. Solving NRPF unless *power mismatch* < 0.001
+5. Solving NRPF unless *power mismatch* < 0.01
 6. Fast Decoupled Power Flow
   * when the B matrices are same for both the diagonal sub-Jacobian matrices
   * when the B matrices are different for the diagonal sub-Jacobian matrices i.e. when lossless system is assumed (i.e. B = 1/X).
