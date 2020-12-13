@@ -1,7 +1,7 @@
 # Newton-Rhapson-Power-Flow
 Implementation of Newton Rhapson Power Flow (NRPF) algorithm on IEEE-14 bus system with transformer taps, Q-limits, and Fast Decoupled power flow approach for better computation. The program is developed without using **any** in-built functions of ```MATLAB```. Although presented for the IEEE-14 bus system, the code is generalized to work for different system provided that the data is presented in IEEE common data format. Before running it on a test case, please separate bus and branch data in a separate text file. The program evaluates the Q-limit for Newton-Rhapson but not for fast decoupled power-flow. The Q-limit function can easily be integrated with fast decoupled power-flow algorithm. You just need to call the function after being done with the power flow.  
 
-![IEEE-14 bus system](./IEEE14bus_data/IEEE14bus.PNG)
+![IEEE-14 bus system](./IEEE-14bus_data/IEEE14bus.PNG)
 
 # Assumptions
 1. In order to make this work, we have to assume that Bus 1 is the slack bus. Hence, bus 1 is always considered as a slack bus.
