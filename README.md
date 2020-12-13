@@ -23,3 +23,6 @@ Implementation of Newton Rhapson Power Flow (NRPF) algorithm on IEEE-14 bus syst
 # Dependencies
 1. ```MATLAB```
 Although any version would work, I wrote it in 2020a. Please let me know if the script does not run on your system. I can provide a version compatible script on request.
+
+# Update
+This tool now also solves an IEEE-30 bus system. For higher number of buses there are more than 1 slack buses. Hence, with more than one slack buses, this tool does not provide any power flow solution.
